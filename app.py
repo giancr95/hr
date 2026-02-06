@@ -236,17 +236,19 @@ def render_hours_section(employees):
         return
 
     with st.form("hours_form", clear_on_submit=True):
-        employee_label = st.selectbox(
-            "Empleado", employees["full_name"], key="hours_employee"
+        employee_id = st.selectbox(
+            "Empleado",
+            employees["id"],
+            key="hours_employee",
+            format_func=lambda value: employees.loc[
+                employees["id"] == value, "full_name"
+            ].iloc[0],
         )
         work_date = st.date_input("Fecha trabajada", value=date.today())
         hours = st.number_input("Horas", min_value=0.0, step=0.5)
         notes = st.text_input("Notas")
         submitted = st.form_submit_button("Guardar horas")
         if submitted:
-            employee_id = int(
-                employees.loc[employees["full_name"] == employee_label, "id"].iloc[0]
-            )
             add_work_hours(employee_id, work_date, hours, notes)
             st.success("Horas registradas.")
 
@@ -258,8 +260,13 @@ def render_adjustments_section(employees):
         return
 
     with st.form("adjustments_form", clear_on_submit=True):
-        employee_label = st.selectbox(
-            "Empleado", employees["full_name"], key="adjust_employee"
+        employee_id = st.selectbox(
+            "Empleado",
+            employees["id"],
+            key="adjust_employee",
+            format_func=lambda value: employees.loc[
+                employees["id"] == value, "full_name"
+            ].iloc[0],
         )
         adjustment_date = st.date_input("Fecha del movimiento", value=date.today())
         adjustment_type = st.selectbox("Tipo", ["bonus", "deduction"])
@@ -267,9 +274,6 @@ def render_adjustments_section(employees):
         description = st.text_input("Descripción")
         submitted = st.form_submit_button("Guardar movimiento")
         if submitted:
-            employee_id = int(
-                employees.loc[employees["full_name"] == employee_label, "id"].iloc[0]
-            )
             add_adjustment(
                 employee_id, adjustment_date, adjustment_type, amount, description
             )
